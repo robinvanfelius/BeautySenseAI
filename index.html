@@ -617,7 +617,12 @@ Ingrediënten scanner: analyseer ingrediëntenlijst → Aanrader / Twijfel / Nie
 
 Nooit: medische diagnoses, één merk pushen, vage antwoorden.
 
-OPMAAK: Bij een keuzevraag eindig je met de opties als losse regels beginnend met "- ". Alleen voor echte keuze-opties.`,
+OPMAAK: Bij een echte keuzevraag (beperkte vaste opties) sluit je de opties in met [OPTIES] en [/OPTIES], elke optie op een nieuwe regel. Gebruik dit ALLEEN voor vaste keuzes zoals Man/Vrouw, Beginner/Gemiddeld/Gevorderd, seizoenen, budgetniveaus etc. Gebruik het NIET bij open vragen, advies, productaanbevelingen of uitleg. Voorbeeld:
+[OPTIES]
+Man
+Vrouw
+Anders
+[/OPTIES]`,
 
     en: `You are BeautySense.AI, a calm and knowledgeable beauty specialist.
 You feel like a trusted friend who knows everything about beauty — without judgement, without complexity, accessible to everyone.
@@ -647,22 +652,31 @@ Ingredient scanner: analyse ingredient list → Recommended / Uncertain / Not su
 
 Never: medical diagnoses, push one brand, vague answers.
 
-FORMAT: When asking a choice question, end with options as separate lines starting with "- ". Only for actual choice options.`
+FORMAT: When asking a choice question with fixed options, wrap the options in [OPTIES] and [/OPTIES] tags, one option per line. Use this ONLY for fixed choices like Male/Female, Beginner/Intermediate/Advanced, seasons, budget levels etc. Do NOT use for open questions, advice, product recommendations or explanations. Example:
+[OPTIES]
+Male
+Female
+Other
+[/OPTIES]`
   };
 
   // ── Greetings ─────────────────────────────────────────────
   const GREETING = {
     nl: `Welkom! Om je zo goed mogelijk te helpen — ben je een man of een vrouw?
 
-- Man
-- Vrouw
-- Anders / Liever niet zeggen`,
+[OPTIES]
+Man
+Vrouw
+Anders / Liever niet zeggen
+[/OPTIES]`,
 
     en: `Welcome! To help you as well as possible — are you male or female?
 
-- Male
-- Female
-- Other / Prefer not to say`
+[OPTIES]
+Male
+Female
+Other / Prefer not to say
+[/OPTIES]`
   };
 
   // ── DOM ───────────────────────────────────────────────────
@@ -768,6 +782,7 @@ FORMAT: When asking a choice question, end with options as separate lines starti
   // ── Markdown ──────────────────────────────────────────────
   function renderMarkdown(text) {
     let s = text
+      .replace(/\[OPTIES\][\s\S]*?\[\/OPTIES\]/gi, '')  // strip choice tags
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/^- (.+)$/gm, '<li>$1</li>');
@@ -780,8 +795,9 @@ FORMAT: When asking a choice question, end with options as separate lines starti
 
   // ── Extract options ───────────────────────────────────────
   function extractOptions(text) {
-    const opts = text.split('\n')
-      .map(l => l.match(/^-\s+(.+)$/)).filter(Boolean).map(m => m[1].trim());
+    const match = text.match(/\[OPTIES\]([\s\S]*?)\[\/OPTIES\]/i);
+    if (!match) return [];
+    const opts = match[1].split('\n').map(l => l.trim()).filter(Boolean);
     return (opts.length >= 2 && opts.length <= 10) ? opts : [];
   }
 
