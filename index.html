@@ -1048,52 +1048,50 @@ Other / Prefer not to say
   applyLang();
 
   // ── Auth state ────────────────────────────────────────────
-  supa.auth.onAuthStateChange(async (event, session) => {
-    try {
-      currentSession = session;
-      currentUser    = session?.user || null;
+  supa.auth.onAuthStateChange((event, session) => {
+    currentSession = session;
+    currentUser    = session?.user || null;
 
-      if (currentUser) {
-        try {
-          await loadUserState();
-        } catch (e) {
-          console.warn('[auth] loadUserState fout (niet fataal):', e);
-          isPremium  = false;
-          usedToday  = 0;
-        }
-      } else {
-        isPremium = false;
-        usedToday = 0;
-      }
+    if (!currentUser) { isPremium = false; usedToday = 0; }
 
-      updateAuthUI();
-      messagesEl.innerHTML = '';
-      clearChoices();
-      history.length = 0;
+    // ── Toon UI direct — blokkeer login NOOIT op DB queries ─
+    updateAuthUI();
+    messagesEl.innerHTML = '';
+    clearChoices();
+    history.length = 0;
+    try { initChallenge(); } catch (e) {}
+    if (currentUser) showGreeting(); else showLoginWall();
 
-      try { initChallenge(); } catch (e) { console.warn('[auth] initChallenge fout:', e); }
-
-      if (currentUser) showGreeting(); else showLoginWall();
-
-    } catch (e) {
-      console.error('[auth] onAuthStateChange fout:', e);
+    // ── Laad premium/usage op de achtergrond ─────────────────
+    if (currentUser) {
+      loadUserState()
+        .then(() => updateAuthUI())
+        .catch(() => {});
     }
   });
 
   async function loadUserState() {
-    const jwt = currentSession?.access_token;
-    if (!jwt) return;
+    if (!currentUser) return;
+    const timeout = (ms) => new Promise((_, r) => setTimeout(() => r(new Error('timeout')), ms));
 
     // Premium status
-    const { data: profile } = await supa.from('profiles')
-      .select('is_premium').eq('user_id', currentUser.id).single();
-    isPremium = profile?.is_premium || false;
+    try {
+      const { data: profile } = await Promise.race([
+        supa.from('profiles').select('is_premium').eq('user_id', currentUser.id).single(),
+        timeout(4000)
+      ]);
+      isPremium = profile?.is_premium || false;
+    } catch { isPremium = false; }
 
     // Today's usage
-    const today = new Date().toISOString().split('T')[0];
-    const { data: qs } = await supa.from('questions')
-      .select('id').eq('user_id', currentUser.id).gte('created_at', `${today}T00:00:00`);
-    usedToday = qs?.length || 0;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: qs } = await Promise.race([
+        supa.from('questions').select('id').eq('user_id', currentUser.id).gte('created_at', `${today}T00:00:00`),
+        timeout(4000)
+      ]);
+      usedToday = qs?.length || 0;
+    } catch { usedToday = 0; }
   }
 
   function updateAuthUI() {
