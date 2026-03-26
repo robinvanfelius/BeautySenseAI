@@ -1639,16 +1639,26 @@ Other / Prefer not to say
         },
       });
 
-      if (!res.ok) throw new Error('Checkout failed');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || errData.error || `HTTP ${res.status}`);
+      }
       const { url } = await res.json();
       window.location.href = url;
 
     } catch (err) {
       btn.disabled = false;
       btn.textContent = orig;
-      appendMessage('ai', lang === 'nl'
-        ? 'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw.'
-        : 'Something went wrong starting the payment. Please try again.');
+
+      // Probeer de exacte foutmelding van de server te tonen
+      let detail = err.message;
+      try {
+        const errData = JSON.parse(err.message);
+        detail = errData.message || errData.error || err.message;
+      } catch (_) {}
+
+      appendMessage('ai', `Checkout fout: ${detail}`);
+      console.error('[checkout frontend]', err);
     }
   }
 
