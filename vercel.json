@@ -1,11 +1,13 @@
 {
   "functions": {
-    "api/chat.js": {
-      "maxDuration": 30
-    }
+    "api/chat.js":     { "maxDuration": 30 },
+    "api/checkout.js": { "maxDuration": 10 },
+    "api/webhook.js":  { "maxDuration": 10 }
   },
   "routes": [
-    { "src": "/api/chat", "dest": "/api/chat.js" },
-    { "src": "/(.*)",     "dest": "/index.html"  }
+    { "src": "/api/chat",     "dest": "/api/chat.js"     },
+    { "src": "/api/checkout", "dest": "/api/checkout.js" },
+    { "src": "/api/webhook",  "dest": "/api/webhook.js"  },
+    { "src": "/(.*)",         "dest": "/index.html"      }
   ]
 }

@@ -621,6 +621,15 @@
     }
     .logout-btn:hover { color: var(--blush-dark); }
 
+    .upgrade-pill-btn {
+      background: linear-gradient(135deg, var(--gold), #B8935A);
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: .7rem; font-weight: 600;
+      padding: 3px 10px; cursor: pointer; transition: all .2s;
+      box-shadow: 0 2px 6px rgba(196,168,124,.35);
+    }
+    .upgrade-pill-btn:hover { opacity: .9; transform: translateY(-1px); }
+
     /* ── Limit banner ────────────────────────────────────── */
     .limit-banner {
       display: none; flex-shrink: 0;
@@ -713,6 +722,7 @@
       <div class="user-pill" id="userPill">
         <span id="userEmail"></span>
         <span class="usage-count" id="usageCount"></span>
+        <button class="upgrade-pill-btn" id="upgradePillBtn" style="display:none" onclick="startCheckout()">&#9733; Premium</button>
         <button class="logout-btn" id="logoutBtn">Uitloggen</button>
       </div>
     </div>
@@ -1087,6 +1097,8 @@ Other / Prefer not to say
       limitTextEl.textContent = t.limitText;
       limitBanner.classList.toggle('show', limitHit);
       document.getElementById('stylistBadge').textContent = 'Nieuw';
+      // Toon upgrade knop in header als gebruiker NIET premium is
+      document.getElementById('upgradePillBtn').style.display = isPremium ? 'none' : '';
     } else {
       loginBtn.style.display = '';
       userPill.style.display = 'none';
@@ -1608,12 +1620,68 @@ Other / Prefer not to say
     userInput.focus();
   }
 
-  // ── Upgrade button ────────────────────────────────────────
-  document.getElementById('upgradeBtn').addEventListener('click', () => {
-    alert(lang === 'nl'
-      ? 'Premium komt binnenkort beschikbaar!'
-      : 'Premium coming soon!');
-  });
+  // ── Stripe checkout ───────────────────────────────────────
+  async function startCheckout() {
+    if (!currentUser) { openAuthModal(); return; }
+
+    const btn = document.getElementById('upgradeBtn');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = lang === 'nl' ? 'Laden...' : 'Loading...';
+
+    try {
+      const jwt = currentSession?.access_token || '';
+      const res = await fetch('/api/checkout', {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${jwt}`,
+        },
+      });
+
+      if (!res.ok) throw new Error('Checkout failed');
+      const { url } = await res.json();
+      window.location.href = url;
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = orig;
+      appendMessage('ai', lang === 'nl'
+        ? 'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw.'
+        : 'Something went wrong starting the payment. Please try again.');
+    }
+  }
+
+  document.getElementById('upgradeBtn').addEventListener('click', startCheckout);
+
+  // ── Terugkeer van Stripe ──────────────────────────────────
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get('upgraded') === 'true') {
+      // URL opschonen
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Wacht even zodat de webhook Supabase al heeft bijgewerkt
+      await new Promise(r => setTimeout(r, 2500));
+
+      // Herlaad user state
+      if (currentUser) {
+        await loadUserState();
+        updateAuthUI();
+      }
+
+      // Toon success melding
+      const msg = lang === 'nl'
+        ? 'Welkom bij Premium! Je hebt nu onbeperkt toegang tot BeautySense.AI. Geniet ervan!'
+        : 'Welcome to Premium! You now have unlimited access to BeautySense.AI. Enjoy!';
+      appendMessage('ai', msg);
+    }
+
+    if (params.get('cancelled') === 'true') {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  })();
 </script>
 </body>
 </html>
