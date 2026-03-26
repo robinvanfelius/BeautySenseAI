@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -100,25 +101,6 @@
     }
 
     .header-right { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
-
-    .status-pill {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(168,200,158,.15);
-      border: 1px solid rgba(168,200,158,.3);
-      border-radius: 20px; padding: 4px 10px;
-      font-size: .7rem; font-weight: 500; color: #6A9B60;
-      letter-spacing: .03em;
-    }
-
-    .status-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: #88C07A;
-      animation: pulse-dot 2.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; } 50% { opacity: .5; }
-    }
 
     /* Language switch */
     .lang-switch {
@@ -366,6 +348,154 @@
     .day-label::after  { right: 0; }
 
 
+    /* ── Auth modal ──────────────────────────────────────── */
+    .auth-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(42,34,32,.5); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .auth-overlay.open { display: flex; }
+
+    .auth-card {
+      background: var(--ivory); border-radius: 24px;
+      padding: 36px 32px; width: 100%; max-width: 380px; margin: 16px;
+      box-shadow: 0 20px 60px rgba(80,50,35,.22);
+      animation: msgIn .3s ease both;
+    }
+
+    .auth-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; font-weight: 600; color: var(--taupe-dark);
+      text-align: center; margin-bottom: 4px;
+    }
+    .auth-logo em { color: var(--blush-dark); font-style: italic; font-weight: 400; }
+
+    .auth-sub {
+      font-size: .82rem; color: var(--text-muted);
+      text-align: center; margin-bottom: 24px; line-height: 1.5;
+    }
+
+    .auth-tabs {
+      display: flex; border: 1.5px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin-bottom: 22px;
+    }
+    .auth-tab {
+      flex: 1; padding: 9px; background: transparent; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: .83rem; font-weight: 500;
+      color: var(--text-muted); cursor: pointer; transition: all .2s;
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff;
+    }
+
+    .auth-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .auth-field label { font-size: .78rem; font-weight: 500; color: var(--taupe); }
+    .auth-field input {
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 10px 14px; font-size: .88rem;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream); color: var(--text); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .auth-field input:focus {
+      border-color: var(--blush); box-shadow: 0 0 0 3px rgba(201,144,127,.15);
+    }
+
+    .auth-submit {
+      width: 100%; padding: 12px; margin-top: 6px;
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 500;
+      cursor: pointer; transition: all .2s;
+      box-shadow: 0 4px 14px rgba(163,103,90,.3);
+    }
+    .auth-submit:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+    .auth-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+    .auth-error {
+      font-size: .78rem; color: #C44444; text-align: center;
+      margin-top: 10px; min-height: 18px;
+    }
+
+    /* ── Header auth area ────────────────────────────────── */
+    .login-btn {
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff; border: none; border-radius: 20px;
+      font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 500;
+      padding: 7px 16px; cursor: pointer; transition: all .2s;
+      box-shadow: 0 2px 8px rgba(163,103,90,.25); white-space: nowrap;
+    }
+    .login-btn:hover { opacity: .9; }
+
+    .user-pill {
+      display: none; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.7); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px;
+      font-size: .75rem; color: var(--taupe-dark);
+    }
+    .usage-count { font-weight: 600; color: var(--blush-dark); }
+    .usage-count.premium { color: var(--gold); }
+    .logout-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: .73rem;
+      font-family: 'DM Sans', sans-serif; padding: 0;
+      transition: color .2s;
+    }
+    .logout-btn:hover { color: var(--blush-dark); }
+
+    /* ── Limit banner ────────────────────────────────────── */
+    .limit-banner {
+      display: none; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--blush-xlight), var(--gold-light));
+      border-bottom: 1px solid var(--blush-light);
+      padding: 11px 28px;
+      align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .limit-banner.show { display: flex; }
+    .limit-text { font-size: .82rem; color: var(--taupe-dark); line-height: 1.4; }
+    .upgrade-btn {
+      background: linear-gradient(135deg, var(--gold), #B8935A);
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: .78rem; font-weight: 500;
+      padding: 7px 16px; cursor: pointer; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(196,168,124,.4); transition: all .2s;
+    }
+    .upgrade-btn:hover { opacity: .9; }
+
+    /* ── Login wall (not authenticated) ─────────────────── */
+    .login-wall {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 48px 32px; gap: 14px; flex: 1;
+    }
+    .login-wall-icon {
+      width: 68px; height: 68px; border-radius: 20px;
+      background: linear-gradient(145deg, var(--blush-xlight), var(--gold-light));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(201,144,127,.2);
+    }
+    .login-wall-icon svg {
+      width: 32px; height: 32px; fill: none; stroke: var(--blush-dark);
+      stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .login-wall-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--taupe-dark);
+    }
+    .login-wall-sub {
+      font-size: .88rem; color: var(--text-muted);
+      max-width: 300px; line-height: 1.65;
+    }
+    .login-wall-btn {
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff; border: none; border-radius: 24px;
+      padding: 12px 32px; font-size: .9rem; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(163,103,90,.35); transition: all .2s;
+    }
+    .login-wall-btn:hover { transform: translateY(-2px); }
+
     /* ── Responsive ──────────────────────────────────────── */
     @media (max-width: 520px) {
       header { padding: 12px 16px 11px; }
@@ -373,6 +503,7 @@
       .messages { padding: 18px 14px 10px; }
       .quick-replies { padding: 4px 14px 8px; max-height: 48px; }
       .input-area { padding: 10px 14px 14px; }
+      .limit-banner { padding: 10px 14px; flex-direction: column; text-align: center; }
     }
   </style>
 </head>
@@ -397,16 +528,46 @@
       </div>
     </div>
     <div class="header-right">
-      <div class="status-pill">
-        <div class="status-dot"></div>
-        <span id="statusLabel">online</span>
-      </div>
       <div class="lang-switch">
         <button class="lang-btn active" id="btnNL" onclick="setLang('nl')">NL</button>
         <button class="lang-btn"        id="btnEN" onclick="setLang('en')">EN</button>
       </div>
+      <button class="login-btn" id="loginBtn">Inloggen</button>
+      <div class="user-pill" id="userPill">
+        <span id="userEmail"></span>
+        <span class="usage-count" id="usageCount"></span>
+        <button class="logout-btn" id="logoutBtn">Uitloggen</button>
+      </div>
     </div>
   </header>
+
+  <!-- Auth modal -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-logo">Beauty<em>Sense</em>.AI</div>
+      <div class="auth-sub" id="authSub">Jouw persoonlijke beauty specialist — maak een gratis account aan</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin"    onclick="switchTab('login')">Inloggen</button>
+        <button class="auth-tab"        id="tabRegister" onclick="switchTab('register')">Registreren</button>
+      </div>
+      <div class="auth-field">
+        <label for="authEmail">E-mailadres</label>
+        <input type="email" id="authEmail" placeholder="jouw@email.nl" autocomplete="email" />
+      </div>
+      <div class="auth-field">
+        <label for="authPassword">Wachtwoord</label>
+        <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="auth-submit" id="authSubmit">Inloggen</button>
+      <div class="auth-error" id="authError"></div>
+    </div>
+  </div>
+
+  <!-- Limiet banner -->
+  <div class="limit-banner" id="limitBanner">
+    <span class="limit-text" id="limitText">Je hebt je 5 dagelijkse vragen gebruikt. Morgen kun je weer 5 vragen stellen.</span>
+    <button class="upgrade-btn" id="upgradeBtn">Upgrade naar Premium</button>
+  </div>
 
   <!-- Messages -->
   <div class="messages" id="messages"></div>
@@ -436,34 +597,58 @@
 </div>
 
 <script>
-  const MODEL   = 'claude-sonnet-4-20250514';
-  const history = [];
-  let   lang    = localStorage.getItem('bs_lang') || 'nl';
-  let   busy    = false;
+  const MODEL      = 'claude-sonnet-4-20250514';
+  const FREE_LIMIT = 5;
+  const history    = [];
+  let   lang       = localStorage.getItem('bs_lang') || 'nl';
+  let   busy       = false;
+
+  // ── Supabase ──────────────────────────────────────────────
+  const SUPA_URL  = 'https://mwbdviscbumgdwuwmurg.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13YmR2aXNjYnVtZ2R3dXdtdXJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1Mjc5NTYsImV4cCI6MjA5MDEwMzk1Nn0.xnAGVfidSY3T9uOduwSbRZJo8jdp202YB1QB0qLr7OM';
+  const supa      = window.supabase.createClient(SUPA_URL, SUPA_ANON);
+
+  let currentUser    = null;
+  let currentSession = null;
+  let isPremium      = false;
+  let usedToday      = 0;
+  let authTab        = 'login';
 
   // ── i18n ─────────────────────────────────────────────────
   const T = {
     nl: {
-      tagline:     'Jouw persoonlijke beauty specialist',
-      today:       'Vandaag',
-      placeholder: 'Schrijf hier je bericht...',
-      hint:        'Enter om te versturen \u00a0·\u00a0 Shift+Enter voor nieuwe regel',
-      anders:      'Anders, namelijk\u2026',
-      errPrefix:   'Er ging iets mis',
-      errSuffix:   'Probeer het opnieuw.',
-      youLabel:    'JIJ',
-      status:      'online',
+      tagline:      'Jouw persoonlijke beauty specialist',
+      today:        'Vandaag',
+      placeholder:  'Schrijf hier je bericht...',
+      hint:         'Enter om te versturen \u00a0·\u00a0 Shift+Enter voor nieuwe regel',
+      anders:       'Anders, namelijk\u2026',
+      errPrefix:    'Er ging iets mis',
+      errSuffix:    'Probeer het opnieuw.',
+      youLabel:     'JIJ',
+      loginWall:    'Log in om te beginnen',
+      loginSub:     'Maak een gratis account aan en stel elke dag 5 vragen.',
+      loginBtn:     'Inloggen / Registreren',
+      remaining:    (n) => `${n}/${FREE_LIMIT} vragen over`,
+      limitText:    `Je hebt je ${FREE_LIMIT} dagelijkse vragen gebruikt. Morgen kun je weer vragen stellen.`,
+      sessionExp:   'Sessie verlopen — log opnieuw in.',
+      limitReached: `Dagelijks limiet bereikt. Upgrade naar Premium voor onbeperkte vragen.`,
     },
     en: {
-      tagline:     'Your personal beauty specialist',
-      today:       'Today',
-      placeholder: 'Write your message here\u2026',
-      hint:        'Enter to send \u00a0·\u00a0 Shift+Enter for new line',
-      anders:      'Other, namely\u2026',
-      errPrefix:   'Something went wrong',
-      errSuffix:   'Please try again.',
-      youLabel:    'YOU',
-      status:      'online',
+      tagline:      'Your personal beauty specialist',
+      today:        'Today',
+      placeholder:  'Write your message here\u2026',
+      hint:         'Enter to send \u00a0·\u00a0 Shift+Enter for new line',
+      anders:       'Other, namely\u2026',
+      errPrefix:    'Something went wrong',
+      errSuffix:    'Please try again.',
+      youLabel:     'YOU',
+      loginWall:    'Sign in to get started',
+      loginSub:     'Create a free account and ask 5 questions every day.',
+      loginBtn:     'Sign in / Register',
+      remaining:    (n) => `${n}/${FREE_LIMIT} questions left`,
+      limitText:    `You've used your ${FREE_LIMIT} daily questions. Come back tomorrow.`,
+      sessionExp:   'Session expired — please sign in again.',
+      limitReached: `Daily limit reached. Upgrade to Premium for unlimited questions.`,
     }
   };
 
@@ -567,20 +752,30 @@ Other / Prefer not to say
   const sendBtn      = document.getElementById('sendBtn');
   const taglineEl    = document.getElementById('tagline');
   const inputHintEl  = document.getElementById('inputHint');
-  const statusLabel  = document.getElementById('statusLabel');
   const btnNL        = document.getElementById('btnNL');
   const btnEN        = document.getElementById('btnEN');
+  const loginBtn     = document.getElementById('loginBtn');
+  const userPill     = document.getElementById('userPill');
+  const userEmailEl  = document.getElementById('userEmail');
+  const usageCountEl = document.getElementById('usageCount');
+  const logoutBtn    = document.getElementById('logoutBtn');
+  const authOverlay  = document.getElementById('authOverlay');
+  const authSubmit   = document.getElementById('authSubmit');
+  const authError    = document.getElementById('authError');
+  const authEmailEl  = document.getElementById('authEmail');
+  const authPassEl   = document.getElementById('authPassword');
+  const limitBanner  = document.getElementById('limitBanner');
+  const limitTextEl  = document.getElementById('limitText');
 
   // ── Language ──────────────────────────────────────────────
   function applyLang() {
     const t = T[lang];
-    taglineEl.textContent    = t.tagline;
-    inputHintEl.innerHTML    = t.hint;
-    statusLabel.textContent  = t.status;
+    taglineEl.textContent = t.tagline;
+    inputHintEl.innerHTML = t.hint;
     document.documentElement.lang = lang;
     btnNL.classList.toggle('active', lang === 'nl');
     btnEN.classList.toggle('active', lang === 'en');
-    updateSendState();
+    updateAuthUI();
   }
 
   function setLang(l) {
@@ -591,27 +786,167 @@ Other / Prefer not to say
     history.length = 0;
     clearChoices();
     messagesEl.innerHTML = '';
-    showGreeting();
+    if (currentUser) showGreeting(); else showLoginWall();
   }
 
   applyLang();
 
-  // ── Helpers ───────────────────────────────────────────────
-  function updateSendState() {
-    const t = T[lang];
-    sendBtn.disabled   = busy;
-    userInput.disabled = busy;
-    userInput.placeholder = t.placeholder;
+  // ── Auth state ────────────────────────────────────────────
+  supa.auth.onAuthStateChange(async (event, session) => {
+    currentSession = session;
+    currentUser    = session?.user || null;
+    if (currentUser) await loadUserState();
+    updateAuthUI();
+    messagesEl.innerHTML = '';
+    clearChoices();
+    history.length = 0;
+    if (currentUser) showGreeting(); else showLoginWall();
+  });
+
+  async function loadUserState() {
+    const jwt = currentSession?.access_token;
+    if (!jwt) return;
+
+    // Premium status
+    const { data: profile } = await supa.from('profiles')
+      .select('is_premium').eq('user_id', currentUser.id).single();
+    isPremium = profile?.is_premium || false;
+
+    // Today's usage
+    const today = new Date().toISOString().split('T')[0];
+    const { data: qs } = await supa.from('questions')
+      .select('id').eq('user_id', currentUser.id).gte('created_at', `${today}T00:00:00`);
+    usedToday = qs?.length || 0;
   }
 
-  function scrollBottom() {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+  function updateAuthUI() {
+    const t         = T[lang];
+    const limitHit  = !isPremium && usedToday >= FREE_LIMIT;
+
+    if (currentUser) {
+      loginBtn.style.display  = 'none';
+      userPill.style.display  = 'flex';
+      userEmailEl.textContent = currentUser.email.split('@')[0];
+
+      if (isPremium) {
+        usageCountEl.textContent = 'Premium';
+        usageCountEl.className   = 'usage-count premium';
+      } else {
+        const rem = Math.max(0, FREE_LIMIT - usedToday);
+        usageCountEl.textContent = t.remaining(rem);
+        usageCountEl.className   = 'usage-count';
+      }
+
+      limitTextEl.textContent = t.limitText;
+      limitBanner.classList.toggle('show', limitHit);
+    } else {
+      loginBtn.style.display = '';
+      userPill.style.display = 'none';
+      limitBanner.classList.remove('show');
+    }
+
+    updateSendState();
+  }
+
+  // ── Auth modal ────────────────────────────────────────────
+  loginBtn.addEventListener('click', () => openAuthModal());
+  logoutBtn.addEventListener('click', async () => {
+    await supa.auth.signOut();
+  });
+
+  function openAuthModal() {
+    authOverlay.classList.add('open');
+    authError.textContent = '';
+    authEmailEl.value = '';
+    authPassEl.value  = '';
+    authEmailEl.focus();
+  }
+
+  authOverlay.addEventListener('click', e => {
+    if (e.target === authOverlay) authOverlay.classList.remove('open');
+  });
+
+  function switchTab(tab) {
+    authTab = tab;
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    authSubmit.textContent = tab === 'login'
+      ? (lang === 'nl' ? 'Inloggen' : 'Sign in')
+      : (lang === 'nl' ? 'Account aanmaken' : 'Create account');
+    authError.textContent = '';
+  }
+
+  authSubmit.addEventListener('click', async () => {
+    const email = authEmailEl.value.trim();
+    const pass  = authPassEl.value;
+    if (!email || !pass) { authError.textContent = lang === 'nl' ? 'Vul alle velden in.' : 'Fill in all fields.'; return; }
+
+    authSubmit.disabled = true;
+    authError.textContent = '';
+
+    let error;
+    if (authTab === 'login') {
+      ({ error } = await supa.auth.signInWithPassword({ email, password: pass }));
+    } else {
+      ({ error } = await supa.auth.signUp({ email, password: pass }));
+    }
+
+    authSubmit.disabled = false;
+
+    if (error) {
+      authError.textContent = error.message;
+    } else {
+      authOverlay.classList.remove('open');
+      if (authTab === 'register') {
+        authError.textContent = '';
+        // Show confirmation message briefly
+        appendMessage('ai', lang === 'nl'
+          ? 'Account aangemaakt! Controleer je e-mail om te bevestigen, dan kun je direct beginnen.'
+          : 'Account created! Check your email to confirm, then you can start.');
+      }
+    }
+  });
+
+  authEmailEl.addEventListener('keydown', e => { if (e.key === 'Enter') authPassEl.focus(); });
+  authPassEl.addEventListener('keydown',  e => { if (e.key === 'Enter') authSubmit.click(); });
+
+  // ── Helpers ───────────────────────────────────────────────
+  function updateSendState() {
+    const t        = T[lang];
+    const limitHit = !isPremium && usedToday >= FREE_LIMIT;
+    const blocked  = busy || !currentUser || limitHit;
+    sendBtn.disabled    = blocked;
+    userInput.disabled  = blocked;
+    userInput.placeholder = currentUser ? t.placeholder : (lang === 'nl' ? 'Log in om te beginnen...' : 'Sign in to start...');
+  }
+
+  function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+  // ── Login wall ────────────────────────────────────────────
+  function showLoginWall() {
+    const t   = T[lang];
+    const el  = document.createElement('div');
+    el.className = 'login-wall';
+    el.innerHTML = `
+      <div class="login-wall-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3C8 3 5 6.5 5 10.5c0 2.8 1.5 5.2 3.8 6.5"/>
+          <path d="M12 3c4 0 7 3.5 7 7.5c0 2.8-1.5 5.2-3.8 6.5"/>
+          <path d="M9 17c0 2 1.3 3.5 3 3.5s3-1.5 3-3.5"/>
+          <line x1="12" y1="20.5" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="login-wall-title">${t.loginWall}</div>
+      <div class="login-wall-sub">${t.loginSub}</div>
+      <button class="login-wall-btn">${t.loginBtn}</button>`;
+    el.querySelector('.login-wall-btn').addEventListener('click', openAuthModal);
+    messagesEl.appendChild(el);
   }
 
   // ── Markdown ──────────────────────────────────────────────
   function renderMarkdown(text) {
     let s = text
-      .replace(/\[OPTIES\][\s\S]*?\[\/OPTIES\]/gi, '')  // strip choice tags
+      .replace(/\[OPTIES\][\s\S]*?\[\/OPTIES\]/gi, '')
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/^- (.+)$/gm, '<li>$1</li>');
@@ -650,7 +985,7 @@ Other / Prefer not to say
 
   // ── Messages ──────────────────────────────────────────────
   function appendMessage(role, text) {
-    const row = document.createElement('div');
+    const row    = document.createElement('div');
     row.className = `row ${role}`;
     const avatar = document.createElement('div');
     avatar.className = `avatar ${role}`;
@@ -685,9 +1020,6 @@ Other / Prefer not to say
     if (opts.length) showChoices(opts);
   }
 
-  // ── Init ─────────────────────────────────────────────────
-  showGreeting();
-
   // ── Input ─────────────────────────────────────────────────
   userInput.addEventListener('input', () => {
     userInput.style.height = 'auto';
@@ -697,11 +1029,11 @@ Other / Prefer not to say
   userInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (!busy) sendFromInput();
+      if (!busy && currentUser) sendFromInput();
     }
   });
 
-  sendBtn.addEventListener('click', () => { if (!busy) sendFromInput(); });
+  sendBtn.addEventListener('click', () => { if (!busy && currentUser) sendFromInput(); });
 
   function sendFromInput() {
     const text = userInput.value.trim();
@@ -719,14 +1051,35 @@ Other / Prefer not to say
     showTyping();
 
     try {
+      const jwt = currentSession?.access_token || '';
       const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${jwt}`,
+        },
         body: JSON.stringify({
           model: MODEL, max_tokens: 1024,
           system: SYSTEM[lang], messages: history
         })
       });
+
+      if (res.status === 401) {
+        removeTyping();
+        appendMessage('ai', T[lang].sessionExp);
+        await supa.auth.signOut();
+        busy = false; updateSendState();
+        return;
+      }
+
+      if (res.status === 429) {
+        removeTyping();
+        usedToday = FREE_LIMIT;
+        updateAuthUI();
+        appendMessage('ai', T[lang].limitReached);
+        busy = false; updateSendState();
+        return;
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -740,6 +1093,12 @@ Other / Prefer not to say
       appendMessage('ai', reply);
       history.push({ role: 'assistant', content: reply });
 
+      // Update local usage counter
+      if (!isPremium) {
+        usedToday++;
+        updateAuthUI();
+      }
+
       const opts = extractOptions(reply);
       if (opts.length) showChoices(opts);
 
@@ -752,6 +1111,13 @@ Other / Prefer not to say
     busy = false; updateSendState();
     userInput.focus();
   }
+
+  // ── Upgrade button ────────────────────────────────────────
+  document.getElementById('upgradeBtn').addEventListener('click', () => {
+    alert(lang === 'nl'
+      ? 'Premium komt binnenkort beschikbaar!'
+      : 'Premium coming soon!');
+  });
 </script>
 </body>
 </html>
