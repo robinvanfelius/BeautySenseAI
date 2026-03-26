@@ -760,7 +760,7 @@
   <div class="tab-bar">
     <button class="tab-btn active" id="tabChatBtn" onclick="switchMainTab('chat')">Chat</button>
     <button class="tab-btn" id="tabStylistBtn" onclick="switchMainTab('stylist')">
-      Stylist <span class="tab-badge">Nieuw</span>
+      Stylist <span class="tab-badge" id="stylistBadge">Nieuw</span>
     </button>
   </div>
 
@@ -1086,10 +1086,12 @@ Other / Prefer not to say
 
       limitTextEl.textContent = t.limitText;
       limitBanner.classList.toggle('show', limitHit);
+      document.getElementById('stylistBadge').textContent = 'Nieuw';
     } else {
       loginBtn.style.display = '';
       userPill.style.display = 'none';
       limitBanner.classList.remove('show');
+      document.getElementById('stylistBadge').textContent = '🔒';
     }
 
     updateSendState();
@@ -1241,6 +1243,11 @@ Other / Prefer not to say
 
   // ── Main tab switching ────────────────────────────────────
   function switchMainTab(tab) {
+    // Stylist vereist inloggen
+    if (tab === 'stylist' && !currentUser) {
+      openAuthModal();
+      return;
+    }
     activeTab = tab;
     document.getElementById('chatPanel').classList.toggle('hidden', tab !== 'chat');
     document.getElementById('stylistPanel').classList.toggle('hidden', tab !== 'stylist');
