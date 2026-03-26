@@ -502,16 +502,8 @@
         <button class="lang-btn active" id="btnNL" onclick="setLang('nl')">NL</button>
         <button class="lang-btn"        id="btnEN" onclick="setLang('en')">EN</button>
       </div>
-      <button class="api-toggle" id="apiToggle">API-sleutel</button>
     </div>
   </header>
-
-  <!-- API key bar -->
-  <div class="api-bar" id="apiBar">
-    <label for="apiKeyInput" id="apiLabel">Anthropic API-sleutel</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
-    <button class="save-btn" id="saveKey">Opslaan</button>
-  </div>
 
   <!-- Messages -->
   <div class="messages" id="messages"></div>
@@ -543,7 +535,6 @@
 <script>
   const MODEL   = 'claude-sonnet-4-20250514';
   const history = [];
-  let   apiKey  = localStorage.getItem('bs_api_key') || '';
   let   lang    = localStorage.getItem('bs_lang') || 'nl';
   let   busy    = false;
 
@@ -551,39 +542,25 @@
   const T = {
     nl: {
       tagline:     'Jouw persoonlijke beauty specialist',
-      apiLabel:    'Anthropic API-sleutel',
-      apiToggle:   'API-sleutel',
-      save:        'Opslaan',
       today:       'Vandaag',
       placeholder: 'Schrijf hier je bericht...',
-      noKey:       'Voer eerst je API-sleutel in via "API-sleutel" rechtsboven',
       hint:        'Enter om te versturen \u00a0·\u00a0 Shift+Enter voor nieuwe regel',
       anders:      'Anders, namelijk\u2026',
       errPrefix:   'Er ging iets mis',
-      errSuffix:   'Controleer je API-sleutel en probeer het opnieuw.',
+      errSuffix:   'Probeer het opnieuw.',
       youLabel:    'JIJ',
       status:      'online',
-      welcomeTitle:'Welkom bij BeautySense',
-      welcomeSub:  'Vul je Anthropic API-sleutel in om te beginnen. Je sleutel wordt alleen lokaal opgeslagen.',
-      welcomeBtn:  'API-sleutel invoeren',
     },
     en: {
       tagline:     'Your personal beauty specialist',
-      apiLabel:    'Anthropic API key',
-      apiToggle:   'API key',
-      save:        'Save',
       today:       'Today',
       placeholder: 'Write your message here\u2026',
-      noKey:       'Please enter your API key via "API key" in the top right',
       hint:        'Enter to send \u00a0·\u00a0 Shift+Enter for new line',
       anders:      'Other, namely\u2026',
       errPrefix:   'Something went wrong',
-      errSuffix:   'Check your API key and try again.',
+      errSuffix:   'Please try again.',
       youLabel:    'YOU',
       status:      'online',
-      welcomeTitle:'Welcome to BeautySense',
-      welcomeSub:  'Enter your Anthropic API key to get started. Your key is only stored locally.',
-      welcomeBtn:  'Enter API key',
     }
   };
 
@@ -685,12 +662,7 @@ Other / Prefer not to say
   const inputArea    = document.getElementById('inputArea');
   const userInput    = document.getElementById('userInput');
   const sendBtn      = document.getElementById('sendBtn');
-  const apiBar       = document.getElementById('apiBar');
-  const apiToggle    = document.getElementById('apiToggle');
-  const apiKeyInput  = document.getElementById('apiKeyInput');
-  const saveKeyBtn   = document.getElementById('saveKey');
   const taglineEl    = document.getElementById('tagline');
-  const apiLabelEl   = document.getElementById('apiLabel');
   const inputHintEl  = document.getElementById('inputHint');
   const statusLabel  = document.getElementById('statusLabel');
   const btnNL        = document.getElementById('btnNL');
@@ -700,9 +672,6 @@ Other / Prefer not to say
   function applyLang() {
     const t = T[lang];
     taglineEl.textContent    = t.tagline;
-    apiLabelEl.textContent   = t.apiLabel;
-    apiToggle.textContent    = t.apiToggle;
-    saveKeyBtn.textContent   = t.save;
     inputHintEl.innerHTML    = t.hint;
     statusLabel.textContent  = t.status;
     document.documentElement.lang = lang;
@@ -719,60 +688,17 @@ Other / Prefer not to say
     history.length = 0;
     clearChoices();
     messagesEl.innerHTML = '';
-    if (apiKey) showGreeting(); else showWelcome();
+    showGreeting();
   }
 
   applyLang();
 
-  // ── API key ───────────────────────────────────────────────
-  if (apiKey) apiKeyInput.value = apiKey;
-  updateSendState();
-
-  apiToggle.addEventListener('click', () => apiBar.classList.toggle('open'));
-
-  saveKeyBtn.addEventListener('click', () => {
-    const val = apiKeyInput.value.trim();
-    if (!val) return;
-    apiKey = val;
-    localStorage.setItem('bs_api_key', apiKey);
-    apiBar.classList.remove('open');
-    updateSendState();
-    if (history.length === 0) {
-      messagesEl.innerHTML = '';
-      showGreeting();
-    }
-  });
-
-  // ── Welcome screen ────────────────────────────────────────
-  function showWelcome() {
-    const t = T[lang];
-    const el = document.createElement('div');
-    el.className = 'welcome-screen';
-    el.innerHTML = `
-      <div class="welcome-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 3C8 3 5 6.5 5 10.5c0 2.8 1.5 5.2 3.8 6.5"/>
-          <path d="M12 3c4 0 7 3.5 7 7.5c0 2.8-1.5 5.2-3.8 6.5"/>
-          <path d="M9 17c0 2 1.3 3.5 3 3.5s3-1.5 3-3.5"/>
-          <line x1="12" y1="20.5" x2="12" y2="12"/>
-        </svg>
-      </div>
-      <div class="welcome-title">${t.welcomeTitle}</div>
-      <div class="welcome-sub">${t.welcomeSub}</div>
-      <button class="welcome-btn">${t.welcomeBtn}</button>`;
-    el.querySelector('.welcome-btn').addEventListener('click', () => {
-      apiBar.classList.add('open');
-      apiKeyInput.focus();
-    });
-    messagesEl.appendChild(el);
-  }
-
   // ── Helpers ───────────────────────────────────────────────
   function updateSendState() {
     const t = T[lang];
-    sendBtn.disabled   = !apiKey || busy;
-    userInput.disabled = !apiKey || busy;
-    userInput.placeholder = apiKey ? t.placeholder : t.noKey;
+    sendBtn.disabled   = busy;
+    userInput.disabled = busy;
+    userInput.placeholder = t.placeholder;
   }
 
   function scrollBottom() {
@@ -857,7 +783,7 @@ Other / Prefer not to say
   }
 
   // ── Init ─────────────────────────────────────────────────
-  if (apiKey) showGreeting(); else showWelcome();
+  showGreeting();
 
   // ── Input ─────────────────────────────────────────────────
   userInput.addEventListener('input', () => {
@@ -868,11 +794,11 @@ Other / Prefer not to say
   userInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (!busy && apiKey) sendFromInput();
+      if (!busy) sendFromInput();
     }
   });
 
-  sendBtn.addEventListener('click', () => { if (!busy && apiKey) sendFromInput(); });
+  sendBtn.addEventListener('click', () => { if (!busy) sendFromInput(); });
 
   function sendFromInput() {
     const text = userInput.value.trim();
@@ -890,14 +816,9 @@ Other / Prefer not to say
     showTyping();
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type':      'application/json',
-          'x-api-key':         apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: MODEL, max_tokens: 1024,
           system: SYSTEM[lang], messages: history
