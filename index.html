@@ -1049,15 +1049,35 @@ Other / Prefer not to say
 
   // ── Auth state ────────────────────────────────────────────
   supa.auth.onAuthStateChange(async (event, session) => {
-    currentSession = session;
-    currentUser    = session?.user || null;
-    if (currentUser) await loadUserState();
-    updateAuthUI();
-    messagesEl.innerHTML = '';
-    clearChoices();
-    history.length = 0;
-    initChallenge();
-    if (currentUser) showGreeting(); else showLoginWall();
+    try {
+      currentSession = session;
+      currentUser    = session?.user || null;
+
+      if (currentUser) {
+        try {
+          await loadUserState();
+        } catch (e) {
+          console.warn('[auth] loadUserState fout (niet fataal):', e);
+          isPremium  = false;
+          usedToday  = 0;
+        }
+      } else {
+        isPremium = false;
+        usedToday = 0;
+      }
+
+      updateAuthUI();
+      messagesEl.innerHTML = '';
+      clearChoices();
+      history.length = 0;
+
+      try { initChallenge(); } catch (e) { console.warn('[auth] initChallenge fout:', e); }
+
+      if (currentUser) showGreeting(); else showLoginWall();
+
+    } catch (e) {
+      console.error('[auth] onAuthStateChange fout:', e);
+    }
   });
 
   async function loadUserState() {
@@ -1624,10 +1644,9 @@ Other / Prefer not to say
   async function startCheckout() {
     if (!currentUser) { openAuthModal(); return; }
 
-    const btn = document.getElementById('upgradeBtn');
-    const orig = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = lang === 'nl' ? 'Laden...' : 'Loading...';
+    const btn  = document.getElementById('upgradeBtn');
+    const orig = btn?.textContent || '';
+    if (btn) { btn.disabled = true; btn.textContent = lang === 'nl' ? 'Laden...' : 'Loading...'; }
 
     try {
       const jwt = currentSession?.access_token || '';
@@ -1647,8 +1666,7 @@ Other / Prefer not to say
       window.location.href = url;
 
     } catch (err) {
-      btn.disabled = false;
-      btn.textContent = orig;
+      if (btn) { btn.disabled = false; btn.textContent = orig; }
 
       // Probeer de exacte foutmelding van de server te tonen
       let detail = err.message;
@@ -1662,7 +1680,7 @@ Other / Prefer not to say
     }
   }
 
-  document.getElementById('upgradeBtn').addEventListener('click', startCheckout);
+  document.getElementById('upgradeBtn')?.addEventListener('click', startCheckout);
 
   // ── Terugkeer van Stripe ──────────────────────────────────
   (async () => {
