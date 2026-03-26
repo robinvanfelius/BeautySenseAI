@@ -348,6 +348,183 @@
     .day-label::after  { right: 0; }
 
 
+    /* ── Tab bar ─────────────────────────────────────────── */
+    .tab-bar {
+      display: flex; flex-shrink: 0;
+      border-bottom: 1px solid var(--border-light);
+      background: var(--ivory); padding: 0 22px;
+    }
+    .tab-btn {
+      padding: 11px 18px; background: none; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: .83rem; font-weight: 500;
+      color: var(--text-muted); cursor: pointer; position: relative; transition: color .2s;
+    }
+    .tab-btn.active { color: var(--blush-dark); }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(to right, var(--blush), var(--blush-dark));
+      border-radius: 2px 2px 0 0;
+    }
+    .tab-btn:not(.active):hover { color: var(--taupe-dark); }
+    .tab-badge {
+      display: inline-block; background: var(--blush); color: #fff;
+      font-size: .6rem; font-weight: 700; padding: 1px 5px;
+      border-radius: 8px; margin-left: 4px; vertical-align: middle;
+    }
+    .tab-panel { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    .tab-panel.hidden { display: none; }
+
+    /* ── Daily challenge ─────────────────────────────────── */
+    .challenge-banner {
+      display: none; flex-shrink: 0; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #ECF5F0, #E8F0F8);
+      border-bottom: 1px solid rgba(100,175,150,.18);
+      padding: 9px 22px;
+    }
+    .challenge-banner.show { display: flex; }
+    .challenge-inner { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+    .challenge-label {
+      font-size: .65rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      color: #3D8C6A; white-space: nowrap;
+      background: rgba(61,140,106,.1); padding: 2px 8px; border-radius: 8px; flex-shrink: 0;
+    }
+    .challenge-text {
+      font-size: .82rem; color: var(--taupe-dark);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .challenge-try {
+      background: linear-gradient(135deg, #4A9070, #327055);
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: .75rem; font-weight: 500;
+      padding: 5px 13px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(50,112,85,.22); transition: opacity .2s;
+    }
+    .challenge-try:hover { opacity: .88; }
+    .challenge-close {
+      background: none; border: none; color: var(--text-muted); font-size: 1.1rem;
+      cursor: pointer; padding: 0 2px; line-height: 1; transition: color .2s; flex-shrink: 0;
+    }
+    .challenge-close:hover { color: var(--taupe-dark); }
+
+    /* ── Stylist panel ───────────────────────────────────── */
+    .stylist-container {
+      flex: 1; overflow-y: auto; padding: 24px 28px 32px;
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .stylist-header { text-align: center; }
+    .stylist-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 600; color: var(--taupe-dark); margin-bottom: 5px;
+    }
+    .stylist-sub { font-size: .82rem; color: var(--text-muted); line-height: 1.55; }
+    .stylist-upload-area {
+      border: 2px dashed var(--border); border-radius: 20px; background: var(--cream);
+      cursor: pointer; transition: all .2s; overflow: hidden;
+      min-height: 160px; display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .stylist-upload-area:hover { border-color: var(--blush); background: var(--blush-xlight); }
+    .stylist-upload-area.has-image { border-style: solid; border-color: var(--blush-light); min-height: 200px; }
+    .upload-placeholder {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; padding: 28px; text-align: center; pointer-events: none;
+    }
+    .upload-icon { width: 44px; height: 44px; opacity: .4; }
+    .upload-text { font-size: .85rem; color: var(--taupe); font-weight: 400; }
+    .upload-hint { font-size: .75rem; color: var(--text-muted); }
+    .stylist-preview {
+      display: none; width: 100%; max-height: 240px; object-fit: cover; border-radius: 18px;
+    }
+    .occasion-label {
+      font-size: .82rem; font-weight: 500; color: var(--taupe-dark); margin-bottom: 8px;
+    }
+    .occasion-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .occasion-btn {
+      background: var(--ivory); border: 1.5px solid var(--border);
+      color: var(--taupe-dark); font-family: 'DM Sans', sans-serif;
+      font-size: .8rem; padding: 7px 15px; border-radius: 20px;
+      cursor: pointer; transition: all .2s;
+    }
+    .occasion-btn:hover, .occasion-btn.active {
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      border-color: transparent; color: #fff;
+      box-shadow: 0 3px 10px rgba(163,103,90,.3);
+    }
+    .analyze-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff; border: none; border-radius: 16px;
+      font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 500;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 14px rgba(163,103,90,.3);
+    }
+    .analyze-btn:hover:not(:disabled) { transform: translateY(-1px); opacity: .9; }
+    .analyze-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .stylist-result {
+      display: none; background: var(--ivory);
+      border: 1px solid var(--border-light); border-radius: 18px;
+      padding: 20px 22px; line-height: 1.7; color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+    .stylist-result-label {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem; font-weight: 600; color: var(--blush-dark); margin-bottom: 12px;
+    }
+
+    /* ── Login wall redesign ─────────────────────────────── */
+    .login-wall {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 28px 24px 36px; gap: 0; flex: 1; overflow-y: auto; text-align: center;
+    }
+    .lw-icon {
+      width: 64px; height: 64px; border-radius: 20px; margin-bottom: 16px;
+      background: linear-gradient(145deg, var(--blush-xlight), var(--gold-light));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(201,144,127,.2);
+    }
+    .lw-icon svg { width: 30px; height: 30px; stroke: var(--blush-dark); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+    .lw-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 600; color: var(--taupe-dark); margin-bottom: 6px; }
+    .lw-social { font-size: .78rem; color: var(--text-muted); margin-bottom: 20px; }
+    .lw-examples { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-bottom: 22px; }
+    .lw-example-pill {
+      background: var(--ivory); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 13px; font-size: .76rem; color: var(--taupe-dark);
+      box-shadow: var(--shadow-sm); white-space: nowrap;
+    }
+    .lw-benefits {
+      display: flex; flex-direction: column; gap: 8px;
+      width: 100%; max-width: 300px; margin-bottom: 22px;
+    }
+    .lw-benefit {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--ivory); border: 1px solid var(--border-light);
+      border-radius: 14px; padding: 10px 14px; text-align: left;
+      box-shadow: var(--shadow-sm);
+    }
+    .lw-benefit-icon {
+      width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--blush-xlight), var(--gold-light));
+      display: flex; align-items: center; justify-content: center; font-size: .9rem;
+    }
+    .lw-benefit-text { font-size: .8rem; color: var(--taupe-dark); font-weight: 400; line-height: 1.4; }
+    .lw-benefit-text strong { font-weight: 600; color: var(--blush-dark); display: block; }
+    .lw-cta {
+      background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+      color: #fff; border: none; border-radius: 24px;
+      padding: 13px 36px; font-size: .9rem; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(163,103,90,.35); transition: all .2s;
+      margin-bottom: 8px;
+    }
+    .lw-cta:hover { transform: translateY(-2px); }
+    .lw-no-cc { font-size: .73rem; color: var(--text-muted); margin-bottom: 20px; }
+    .lw-testimonial {
+      background: var(--ivory); border: 1px solid var(--border-light);
+      border-radius: 16px; padding: 14px 16px; max-width: 300px;
+      box-shadow: var(--shadow-sm); text-align: left;
+    }
+    .lw-testimonial-text { font-size: .8rem; color: var(--taupe-dark); line-height: 1.6; font-style: italic; margin-bottom: 6px; }
+    .lw-testimonial-author { font-size: .73rem; color: var(--text-muted); font-weight: 500; }
+
     /* ── Auth modal ──────────────────────────────────────── */
     .auth-overlay {
       display: none; position: fixed; inset: 0; z-index: 100;
@@ -569,28 +746,76 @@
     <button class="upgrade-btn" id="upgradeBtn">Upgrade naar Premium</button>
   </div>
 
-  <!-- Messages -->
-  <div class="messages" id="messages"></div>
-
-  <!-- Quick replies -->
-  <div class="quick-replies" id="quickReplies"></div>
-
-  <!-- Input -->
-  <div class="input-area" id="inputArea">
-    <div class="input-row">
-      <textarea id="userInput" rows="1"
-        placeholder="Schrijf hier je bericht..."
-        aria-label="Berichtenveld"></textarea>
-      <button class="send-btn" id="sendBtn" aria-label="Versturen" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
+  <!-- Daily challenge -->
+  <div class="challenge-banner" id="challengeBanner">
+    <div class="challenge-inner">
+      <span class="challenge-label" id="challengeLabel">Dagelijkse uitdaging</span>
+      <span class="challenge-text" id="challengeText"></span>
     </div>
-    <div class="input-hint" id="inputHint">
-      Enter om te versturen &nbsp;·&nbsp; Shift+Enter voor nieuwe regel
+    <button class="challenge-try" id="challengeBtn">Probeer dit</button>
+    <button class="challenge-close" id="challengeClose" aria-label="Sluiten">&#x2715;</button>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabChatBtn" onclick="switchMainTab('chat')">Chat</button>
+    <button class="tab-btn" id="tabStylistBtn" onclick="switchMainTab('stylist')">
+      Stylist <span class="tab-badge">Nieuw</span>
+    </button>
+  </div>
+
+  <!-- Chat panel -->
+  <div class="tab-panel" id="chatPanel">
+    <div class="messages" id="messages"></div>
+    <div class="quick-replies" id="quickReplies"></div>
+    <div class="input-area" id="inputArea">
+      <div class="input-row">
+        <textarea id="userInput" rows="1"
+          placeholder="Schrijf hier je bericht..."
+          aria-label="Berichtenveld"></textarea>
+        <button class="send-btn" id="sendBtn" aria-label="Versturen" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint" id="inputHint">
+        Enter om te versturen &nbsp;·&nbsp; Shift+Enter voor nieuwe regel
+      </div>
+    </div>
+  </div>
+
+  <!-- Stylist panel -->
+  <div class="tab-panel hidden" id="stylistPanel">
+    <div class="stylist-container">
+      <div class="stylist-header">
+        <div class="stylist-title" id="stylistTitle">BeautySense Stylist</div>
+        <div class="stylist-sub" id="stylistSub">Upload een foto van een kledingstuk of accessoire. Kies een gelegenheid en wij maken de outfit compleet.</div>
+      </div>
+      <div class="stylist-upload-area" id="stylistUploadArea">
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="4"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <div class="upload-text" id="uploadText">Klik om een foto te uploaden</div>
+          <div class="upload-hint" id="uploadHint">Schoen, tas, kledingstuk — alles werkt</div>
+        </div>
+        <img class="stylist-preview" id="stylistPreview" alt="Preview" />
+        <input type="file" id="stylistFileInput" accept="image/*" style="display:none" />
+      </div>
+      <div>
+        <div class="occasion-label" id="occasionLabel">Kies een gelegenheid:</div>
+        <div class="occasion-grid" id="occasionGrid"></div>
+      </div>
+      <button class="analyze-btn" id="analyzeBtn" disabled>Analyseer outfit</button>
+      <div class="stylist-result" id="stylistResult">
+        <div class="stylist-result-label" id="stylistResultLabel">Jouw complete outfit</div>
+        <div id="stylistResultBody"></div>
+      </div>
     </div>
   </div>
 
@@ -598,10 +823,11 @@
 
 <script>
   const MODEL      = 'claude-sonnet-4-20250514';
-  const FREE_LIMIT = 5;
+  const FREE_LIMIT = 10;
   const history    = [];
   let   lang       = localStorage.getItem('bs_lang') || 'nl';
   let   busy       = false;
+  let   activeTab  = 'chat';
 
   // ── Supabase ──────────────────────────────────────────────
   const SUPA_URL  = 'https://mwbdviscbumgdwuwmurg.supabase.co';
@@ -625,13 +851,23 @@
       errPrefix:    'Er ging iets mis',
       errSuffix:    'Probeer het opnieuw.',
       youLabel:     'JIJ',
-      loginWall:    'Log in om te beginnen',
-      loginSub:     'Maak een gratis account aan en stel elke dag 5 vragen.',
-      loginBtn:     'Inloggen / Registreren',
+      loginWall:    'Ontdek jouw persoonlijke beauty routine',
+      loginSub:     'Maak een gratis account aan.',
+      loginBtn:     'Gratis account aanmaken',
       remaining:    (n) => `${n}/${FREE_LIMIT} vragen over`,
       limitText:    `Je hebt je ${FREE_LIMIT} dagelijkse vragen gebruikt. Morgen kun je weer vragen stellen.`,
       sessionExp:   'Sessie verlopen — log opnieuw in.',
       limitReached: `Dagelijks limiet bereikt. Upgrade naar Premium voor onbeperkte vragen.`,
+      challengeLabel: 'Dagelijkse uitdaging',
+      challengeTry:   'Probeer dit',
+      stylistTitle:   'BeautySense Stylist',
+      stylistSub:     'Upload een foto van een kledingstuk of accessoire. Kies een gelegenheid en wij maken de outfit compleet.',
+      uploadText:     'Klik om een foto te uploaden',
+      uploadHint:     'Schoen, tas, kledingstuk — alles werkt',
+      occasionLabel:  'Kies een gelegenheid:',
+      analyzeBtn:     'Analyseer outfit',
+      analyzingBtn:   'Analyseren...',
+      resultLabel:    'Jouw complete outfit',
     },
     en: {
       tagline:      'Your personal beauty specialist',
@@ -642,13 +878,23 @@
       errPrefix:    'Something went wrong',
       errSuffix:    'Please try again.',
       youLabel:     'YOU',
-      loginWall:    'Sign in to get started',
-      loginSub:     'Create a free account and ask 5 questions every day.',
-      loginBtn:     'Sign in / Register',
+      loginWall:    'Discover your personal beauty routine',
+      loginSub:     'Create a free account.',
+      loginBtn:     'Create free account',
       remaining:    (n) => `${n}/${FREE_LIMIT} questions left`,
       limitText:    `You've used your ${FREE_LIMIT} daily questions. Come back tomorrow.`,
       sessionExp:   'Session expired — please sign in again.',
       limitReached: `Daily limit reached. Upgrade to Premium for unlimited questions.`,
+      challengeLabel: 'Daily challenge',
+      challengeTry:   'Try this',
+      stylistTitle:   'BeautySense Stylist',
+      stylistSub:     'Upload a photo of a clothing item or accessory. Choose an occasion and we\'ll complete the outfit.',
+      uploadText:     'Click to upload a photo',
+      uploadHint:     'Shoes, bag, clothing — anything works',
+      occasionLabel:  'Choose an occasion:',
+      analyzeBtn:     'Analyse outfit',
+      analyzingBtn:   'Analysing...',
+      resultLabel:    'Your complete outfit',
     }
   };
 
@@ -800,6 +1046,7 @@ Other / Prefer not to say
     messagesEl.innerHTML = '';
     clearChoices();
     history.length = 0;
+    initChallenge();
     if (currentUser) showGreeting(); else showLoginWall();
   });
 
@@ -922,24 +1169,266 @@ Other / Prefer not to say
 
   function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
+  // ── Challenge data ────────────────────────────────────────
+  const CHALLENGES = {
+    nl: [
+      'Kantoorlook — wat zou jij vandaag dragen?',
+      'Probeer vandaag een nieuwe lippenstift kleur',
+      'Droge huid dag — bouw je ochtend hydratatie routine',
+      'Weekend brunch — beschrijf jouw ideale casual look',
+      'Date night — welk parfum en make-up kies jij?',
+      'Zonbescherming check — ken jij jouw SPF routine?',
+      'Haar dag — probeer een nieuw kapsel of styling product',
+      'Statement accessoire — bouw hier een outfit omheen',
+      'Monochrome look — één kleur van top tot teen',
+      'Skincare detox — welke producten kun jij weglaten?',
+      'Anti-aging routine — wat doe jij voor je huid?',
+      'Capsule wardrobe — wat zijn jouw 5 basisstukken?',
+      'Natural glow challenge — hoe bereik jij een stralende huid?',
+      'Regenachtige dag look — comfort én stijl combineren',
+    ],
+    en: [
+      'Office look — what would you wear today?',
+      'Try a new lip color today',
+      'Dry skin day — build your morning hydration routine',
+      'Weekend brunch — describe your ideal casual look',
+      'Date night — which perfume and makeup would you choose?',
+      'Sun protection check — do you know your SPF routine?',
+      'Hair day — try a new hairstyle or styling product',
+      'Statement accessory — build an outfit around it',
+      'Monochrome look — one color from head to toe',
+      'Skincare detox — which products can you cut out?',
+      'Anti-aging routine — what do you do for your skin?',
+      'Capsule wardrobe — what are your 5 essentials?',
+      'Natural glow challenge — how do you achieve radiant skin?',
+      'Rainy day look — combining comfort and style',
+    ]
+  };
+
+  const OCCASIONS = {
+    nl: ['Casual dagje uit', 'Werk / kantoor', 'Date night', 'Formeel evenement', 'Weekend brunch'],
+    en: ['Casual day out', 'Work / office', 'Date night', 'Formal event', 'Weekend brunch'],
+  };
+
+  // ── Daily challenge ───────────────────────────────────────
+  function initChallenge() {
+    const t          = T[lang];
+    const challenges = CHALLENGES[lang];
+    const day        = Math.floor((Date.now() - new Date('2026-01-01')) / 86400000);
+    const text       = challenges[((day % challenges.length) + challenges.length) % challenges.length];
+    const banner     = document.getElementById('challengeBanner');
+    const dismissed  = sessionStorage.getItem('challenge_dismissed');
+
+    document.getElementById('challengeLabel').textContent = t.challengeLabel;
+    document.getElementById('challengeText').textContent  = text;
+    document.getElementById('challengeBtn').textContent   = t.challengeTry;
+
+    if (!dismissed) banner.classList.add('show');
+
+    document.getElementById('challengeBtn').onclick = () => {
+      if (!currentUser) { openAuthModal(); return; }
+      switchMainTab('chat');
+      userInput.value = text;
+      userInput.dispatchEvent(new Event('input'));
+      userInput.focus();
+    };
+
+    document.getElementById('challengeClose').onclick = () => {
+      banner.classList.remove('show');
+      sessionStorage.setItem('challenge_dismissed', '1');
+    };
+  }
+
+  // ── Main tab switching ────────────────────────────────────
+  function switchMainTab(tab) {
+    activeTab = tab;
+    document.getElementById('chatPanel').classList.toggle('hidden', tab !== 'chat');
+    document.getElementById('stylistPanel').classList.toggle('hidden', tab !== 'stylist');
+    document.getElementById('tabChatBtn').classList.toggle('active', tab === 'chat');
+    document.getElementById('tabStylistBtn').classList.toggle('active', tab === 'stylist');
+    if (tab === 'stylist') initStylistPanel();
+  }
+
+  // ── Stylist panel ─────────────────────────────────────────
+  let stylistImage    = null;
+  let stylistMime     = null;
+  let stylistOccasion = null;
+  let stylistInited   = false;
+
+  function initStylistPanel() {
+    if (stylistInited) return;
+    stylistInited = true;
+    const t = T[lang];
+
+    document.getElementById('stylistTitle').textContent   = t.stylistTitle;
+    document.getElementById('stylistSub').textContent     = t.stylistSub;
+    document.getElementById('uploadText').textContent     = t.uploadText;
+    document.getElementById('uploadHint').textContent     = t.uploadHint;
+    document.getElementById('occasionLabel').textContent  = t.occasionLabel;
+    document.getElementById('analyzeBtn').textContent     = t.analyzeBtn;
+    document.getElementById('stylistResultLabel').textContent = t.resultLabel;
+
+    // Occasion buttons
+    const grid = document.getElementById('occasionGrid');
+    grid.innerHTML = '';
+    OCCASIONS[lang].forEach(occ => {
+      const btn = document.createElement('button');
+      btn.className = 'occasion-btn'; btn.textContent = occ;
+      btn.addEventListener('click', () => {
+        grid.querySelectorAll('.occasion-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        stylistOccasion = occ;
+        checkAnalyzeReady();
+      });
+      grid.appendChild(btn);
+    });
+
+    // Upload area
+    const uploadArea = document.getElementById('stylistUploadArea');
+    const fileInput  = document.getElementById('stylistFileInput');
+    const preview    = document.getElementById('stylistPreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        stylistMime   = file.type;
+        stylistImage  = dataUrl.split(',')[1];
+        preview.src   = dataUrl;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        uploadArea.classList.add('has-image');
+        checkAnalyzeReady();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('analyzeBtn').addEventListener('click', runStylistAnalysis);
+  }
+
+  function checkAnalyzeReady() {
+    document.getElementById('analyzeBtn').disabled = !(stylistImage && stylistOccasion);
+  }
+
+  async function runStylistAnalysis() {
+    if (!stylistImage || !stylistOccasion) return;
+    if (!currentUser) { openAuthModal(); return; }
+
+    const t       = T[lang];
+    const btn     = document.getElementById('analyzeBtn');
+    const resultEl = document.getElementById('stylistResult');
+    const bodyEl  = document.getElementById('stylistResultBody');
+
+    btn.disabled = true; btn.textContent = t.analyzingBtn;
+
+    const systemPrompt = lang === 'nl'
+      ? `Je bent BeautySense.AI Stylist. Analyseer het kledingstuk of accessoire in de foto en stel een complete outfit voor die past bij de gekozen gelegenheid. Wees specifiek over kleuren, stijlen, materialen en concrete merken of producten. Gebruik duidelijke kopjes per kledingstuk.`
+      : `You are BeautySense.AI Stylist. Analyse the clothing item or accessory in the photo and suggest a complete outfit matching the chosen occasion. Be specific about colors, styles, materials and concrete brand or product suggestions. Use clear headings per item.`;
+
+    const prompt = lang === 'nl'
+      ? `Dit is het item. Gelegenheid: ${stylistOccasion}. Maak de outfit compleet.`
+      : `This is the item. Occasion: ${stylistOccasion}. Complete the outfit.`;
+
+    try {
+      const jwt = currentSession?.access_token || '';
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+        body: JSON.stringify({
+          model: MODEL, max_tokens: 1200, system: systemPrompt,
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: stylistMime, data: stylistImage } },
+            { type: 'text', text: prompt }
+          ]}]
+        })
+      });
+
+      if (res.status === 401) { openAuthModal(); return; }
+      if (res.status === 429) {
+        usedToday = FREE_LIMIT; updateAuthUI();
+        bodyEl.innerHTML = `<p>${t.limitReached}</p>`;
+        resultEl.style.display = 'block'; return;
+      }
+
+      const data  = await res.json();
+      const reply = data.content?.[0]?.text || '...';
+      bodyEl.innerHTML = renderMarkdown(reply);
+      resultEl.style.display = 'block';
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      if (!isPremium) { usedToday++; updateAuthUI(); }
+
+    } catch (err) {
+      bodyEl.innerHTML = `<p>${t.errPrefix}: ${err.message}</p>`;
+      resultEl.style.display = 'block';
+    }
+
+    btn.disabled = false; btn.textContent = t.analyzeBtn;
+  }
+
   // ── Login wall ────────────────────────────────────────────
   function showLoginWall() {
     const t   = T[lang];
-    const el  = document.createElement('div');
+    const isNL = lang === 'nl';
+
+    const examples = isNL
+      ? ['"Welk foundation past bij mijn huidtint?"', '"Shampoo voor vet haar?"', '"Skincare routine droge huid"']
+      : ['"What foundation matches my skin tone?"', '"Shampoo for oily hair?"', '"Skincare routine for dry skin"'];
+
+    const benefits = isNL
+      ? [
+          { icon: '✦', title: '10 gratis vragen per dag', desc: 'Elke dag opnieuw' },
+          { icon: '◎', title: 'Persoonlijk beauty advies', desc: 'Afgestemd op jouw huidtype & budget' },
+          { icon: '❋', title: 'Haar, huid & make-up', desc: 'Alle beauty expertise op één plek' },
+        ]
+      : [
+          { icon: '✦', title: '10 free questions per day', desc: 'Refreshes every day' },
+          { icon: '◎', title: 'Personalised beauty advice', desc: 'Tailored to your skin type & budget' },
+          { icon: '❋', title: 'Hair, skin & makeup', desc: 'All beauty expertise in one place' },
+        ];
+
+    const testimonial = isNL
+      ? { text: '"BeautySense hielp me de perfecte skincare routine te vinden voor mijn gevoelige huid!"', author: '— Sarah, 28' }
+      : { text: '"BeautySense helped me find the perfect skincare routine for my sensitive skin!"', author: '— Sarah, 28' };
+
+    const social  = isNL ? 'Sluit je aan bij 500+ gebruikers van BeautySense.AI' : 'Join 500+ users already using BeautySense.AI';
+    const noCC    = isNL ? 'Geen creditcard vereist. Altijd gratis te starten.' : 'No credit card required. Free to get started.';
+
+    const el = document.createElement('div');
     el.className = 'login-wall';
     el.innerHTML = `
-      <div class="login-wall-icon">
-        <svg viewBox="0 0 24 24">
+      <div class="lw-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3C8 3 5 6.5 5 10.5c0 2.8 1.5 5.2 3.8 6.5"/>
           <path d="M12 3c4 0 7 3.5 7 7.5c0 2.8-1.5 5.2-3.8 6.5"/>
           <path d="M9 17c0 2 1.3 3.5 3 3.5s3-1.5 3-3.5"/>
           <line x1="12" y1="20.5" x2="12" y2="12"/>
         </svg>
       </div>
-      <div class="login-wall-title">${t.loginWall}</div>
-      <div class="login-wall-sub">${t.loginSub}</div>
-      <button class="login-wall-btn">${t.loginBtn}</button>`;
-    el.querySelector('.login-wall-btn').addEventListener('click', openAuthModal);
+      <div class="lw-title">${t.loginWall}</div>
+      <div class="lw-social">${social}</div>
+      <div class="lw-examples">
+        ${examples.map(e => `<div class="lw-example-pill">${e}</div>`).join('')}
+      </div>
+      <div class="lw-benefits">
+        ${benefits.map(b => `
+          <div class="lw-benefit">
+            <div class="lw-benefit-icon">${b.icon}</div>
+            <div class="lw-benefit-text"><strong>${b.title}</strong>${b.desc}</div>
+          </div>`).join('')}
+      </div>
+      <button class="lw-cta">${t.loginBtn}</button>
+      <div class="lw-no-cc">${noCC}</div>
+      <div class="lw-testimonial">
+        <div class="lw-testimonial-text">${testimonial.text}</div>
+        <div class="lw-testimonial-author">${testimonial.author}</div>
+      </div>`;
+
+    el.querySelector('.lw-cta').addEventListener('click', openAuthModal);
     messagesEl.appendChild(el);
   }
 
